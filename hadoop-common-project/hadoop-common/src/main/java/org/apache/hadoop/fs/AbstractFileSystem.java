@@ -946,6 +946,15 @@ public abstract class AbstractFileSystem {
       UnresolvedLinkException, IOException;
 
   /**
+   * This need to be overridden for FS that the listing operation is expensive, e.g. S3A
+   */
+  public FileStatus[] listStatus(final Path f, PathFilter filter)
+      throws AccessControlException, FileNotFoundException,
+      UnresolvedLinkException, IOException{
+    return listStatus(f);
+  }
+
+  /**
    * @return an iterator over the corrupt files under the given path
    * (may contain duplicates if a file has more than one corrupt block)
    * @throws IOException

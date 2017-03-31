@@ -70,12 +70,12 @@ class Globber {
     }
   }
 
-  private FileStatus[] listStatus(Path path) throws IOException {
+  private FileStatus[] listStatus(Path path, PathFilter filter) throws IOException {
     try {
       if (fs != null) {
-        return fs.listStatus(path);
+        return fs.listStatus(path, filter);
       } else {
-        return fc.util().listStatus(path);
+        return fc.util().listStatus(path, filter);
       }
     } catch (FileNotFoundException e) {
       return new FileStatus[0];
@@ -231,9 +231,7 @@ class Globber {
         }
         for (FileStatus candidate : candidates) {
           if (globFilter.hasPattern()) {
-            Path path = candidate.getPath();
-            path.filter = globFilter;
-            FileStatus[] children = listStatus(path);
+            FileStatus[] children = listStatus(candidate.getPath(), globFilter);
             if (children.length == 1) {
               // If we get back only one result, this could be either a listing
               // of a directory with one entry, or it could reflect the fact

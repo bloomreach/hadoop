@@ -1394,8 +1394,14 @@ public class S3AFileSystem extends FileSystem {
    */
   public FileStatus[] listStatus(Path f) throws FileNotFoundException,
       IOException {
+    return listStatus(f, null);
+  }
+
+  @Override
+  public FileStatus[] listStatus(Path f, PathFilter filter) throws FileNotFoundException,
+    IOException {
     try {
-      return innerListStatus(f);
+      return innerListStatus(f, filter);
     } catch (AmazonClientException e) {
       throw translateException("listStatus", f, e);
     }
@@ -1411,7 +1417,7 @@ public class S3AFileSystem extends FileSystem {
    * @throws IOException due to an IO problem.
    * @throws AmazonClientException on failures inside the AWS SDK
    */
-  public FileStatus[] innerListStatus(Path f) throws FileNotFoundException,
+  public FileStatus[] innerListStatus(Path f, PathFilter filter) throws FileNotFoundException,
       IOException, AmazonClientException {
     Path path = qualify(f);
     String key = pathToKey(path);
@@ -1432,7 +1438,7 @@ public class S3AFileSystem extends FileSystem {
       Listing.FileStatusListingIterator files =
           listing.createFileStatusListingIterator(path,
               request,
-              (f.filter == null) ? ACCEPT_ALL : f.filter,
+              (filter == null) ? ACCEPT_ALL : filter,
               new Listing.AcceptAllButSelfAndS3nDirs(path));
       result = new ArrayList<>(files.getBatchSize());
       while (files.hasNext()) {
